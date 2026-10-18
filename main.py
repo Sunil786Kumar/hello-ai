@@ -49,3 +49,9 @@ async def get_document(doc_id: UUID) -> Document:
 @app.get("/documents")
 async def list_documents(doc_type: DocType | None = None) -> list[Document]:
     return [d for d in documents.values() if doc_type is None or d.doc_type == doc_type]
+
+@app.delete("/documents/{doc_id}", status_code=204)
+async def delete_document(doc_id: UUID) -> None:
+    if doc_id not in documents:
+        raise HTTPException(status_code=404, detail="Document not found")
+    del documents[doc_id]
