@@ -8,11 +8,18 @@ load_dotenv()
 client = Anthropic()
 
 
-# 1. The shape we want back, just like DocumentIn in Week 1
+class Charge(BaseModel):
+    description: str
+    amount: float
+
+
 class RatesNotice(BaseModel):
     council: str
     property_address: str
     assessment_number: str | None = None
+    period_start: date | None = None
+    period_end: date | None = None
+    charges: list[Charge] = []
     amount_due: float = Field(description="Total amount payable in AUD")
     due_date: date
     discount_amount: float | None = Field(None, description="Early payment discount in AUD, if shown")
@@ -29,7 +36,6 @@ Waste management charge       $236.10
 Water access charge           $151.00
 Total amount payable          $1,199.50
 Due date: 30 November 2026
-Pay by the due date to receive a discount of $40.60
 """
 
 # 3. Ask Claude to fill the shape
@@ -51,3 +57,5 @@ notice = RatesNotice.model_validate(response.content[0].input)
 
 print(notice)
 print(f"Due {notice.due_date:%d %b %Y}: ${notice.amount_due:,.2f}")
+total = sum(c.amount for c in notice.charges)
+print(f"Charges add up to ${total:,.2f}, notice says ${notice.amount_due:,.2f}")
