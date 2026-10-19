@@ -49,8 +49,16 @@ def calculate_gst(amount: float, includes_gst: bool) -> dict:
         "amount_inc_gst": round(ex_gst + gst, 2),
     }
 
+def annualise_rent(weekly_rent: float) -> dict:
+    weeks_per_year = 365 / 7
+    return {
+        "weekly_rent": weekly_rent,
+        "weeks_per_year": round(weeks_per_year, 2),
+        "annual_rent": round(weekly_rent * weeks_per_year, 2),
+    }
 
-TOOL_FUNCTIONS = {"get_document": get_document, "calculate_gst": calculate_gst}
+
+TOOL_FUNCTIONS = {"get_document": get_document, "calculate_gst": calculate_gst, "annualise_rent": annualise_rent}
 
 # --- 3. Descriptions Claude reads to decide when to use each tool ---
 TOOLS = [
@@ -77,6 +85,21 @@ TOOLS = [
             "required": ["amount", "includes_gst"],
         },
     },
+    {
+        "name": "annualise_rent",
+        "description": (
+            "Convert a weekly rent to an annual rent using 365/7 (about 52.14) weeks per year, "
+            "the standard used by property managers. Always use this tool for annual rent; "
+            "never multiply by 52 yourself."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "weekly_rent": {"type": "number", "description": "Weekly rent in AUD"},
+            },
+            "required": ["weekly_rent"],
+        },
+    }
 ]
 
 SYSTEM = (
