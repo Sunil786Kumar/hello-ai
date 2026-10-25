@@ -10,3 +10,4 @@ wheels/
 .venv
 .env
 docs/
+chunk_embeddings.json
